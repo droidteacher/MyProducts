@@ -13,5 +13,6 @@ interface CRUDViewModel {
     fun onDeleteProduct(product: Product)
 
     fun createProduct(name: String, desc: String, quantity: Int)
+    fun fetchAll()
 
 }

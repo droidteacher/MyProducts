@@ -23,10 +23,10 @@ class CRUDViewModelImpl(private val dao: ProductDao): ViewModel(), CRUDViewModel
         selectedTab.value = selected
         debugPrint("::onSelectTab, $selected", step = 7777)
 
-        if(selectedTab.value == TabItem.Read) {
-//            fetchAll()
-            createOrFetch()
-        }
+//        if(selectedTab.value == TabItem.Read) {
+//
+//            createOrFetch()
+//        }
     }
 
     override fun onEditProduct(product: Product) {
@@ -39,6 +39,31 @@ class CRUDViewModelImpl(private val dao: ProductDao): ViewModel(), CRUDViewModel
 
     override fun createProduct(name: String, desc: String, quantity: Int) {
         debugPrint("::createProduct", step = 7777)
+
+        Completable.create { emitter ->
+            dao.insertProduct(
+                Product().also {
+                    it.name = name
+                    it.description = desc
+                    it.quantity = quantity
+                }
+            )
+
+            val items = dao.fetchAll()
+            debugPrint("::createProduct, items count: ${items.size}", step = 7777)
+            products.value = items
+            emitter.onComplete()
+        }
+            .subscribeOn(Schedulers.io())
+            .subscribe(
+                {
+                    selectedTab.value = TabItem.Read
+                },
+                {
+                    it.printStackTrace()
+                }
+            )
+            .addTo(disposeBag)
     }
 
 
@@ -78,12 +103,11 @@ class CRUDViewModelImpl(private val dao: ProductDao): ViewModel(), CRUDViewModel
             emitter.onComplete()
         }
             .subscribeOn(Schedulers.io())
-            .delay(1, TimeUnit.SECONDS)
             .subscribe()
             .addTo(disposeBag)
     }
 
-    private fun fetchAll() {
+    override fun fetchAll() {
         debugPrint("::fetchAll")
         Observable.create<List<Product>> {
             it.onNext(dao.fetchAll())
