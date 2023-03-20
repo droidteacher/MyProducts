@@ -7,6 +7,7 @@ import hu.zsoltkiss.myproducts.persistence.entity.Product
 interface CRUDViewModel {
     val selectedTab: MutableState<TabItem>
     val products: MutableState<List<Product>>
+    val shouldDisplayConfirmDialog: MutableState<Boolean>
 
     fun onSelectTab(selected: TabItem)
     fun onEditProduct(product: Product)
@@ -14,5 +15,7 @@ interface CRUDViewModel {
 
     fun createProduct(name: String, desc: String, quantity: Int)
     fun fetchAll()
+    fun confirmDelete()
+    fun cancelDelete()
 
 }
