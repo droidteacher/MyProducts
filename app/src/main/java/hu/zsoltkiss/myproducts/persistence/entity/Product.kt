@@ -12,4 +12,9 @@ class Product {
     var name: String = ""
     var description: String = ""
     var quantity: Int = 0
+
+
+    override fun toString(): String {
+        return "Product { $id, $name, $quantity }"
+    }
 }

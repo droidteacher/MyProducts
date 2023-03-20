@@ -9,8 +9,9 @@ interface CRUDViewModel {
     val products: MutableState<List<Product>>
 
     fun onSelectTab(selected: TabItem)
+    fun onEditProduct(product: Product)
+    fun onDeleteProduct(product: Product)
 
-    fun add(name: String, desc: String, quantity: Int)
-    fun deleteById(id: Int)
+    fun createProduct(name: String, desc: String, quantity: Int)
 
 }

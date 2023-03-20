@@ -12,6 +12,9 @@ interface ProductDao {
     @Insert
     fun insertProduct(product: Product): Long
 
+    @Insert
+    fun insertAll(vararg products: Product)
+
     @Query("select * from products")
     fun fetchAll(): List<Product>
 
