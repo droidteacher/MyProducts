@@ -39,7 +39,9 @@ class CRUDActivity : ComponentActivity() {
                             when (viewModel.selectedTab.value) {
                                 TabItem.Create -> {
                                     TabContentCreate(
+                                        existingProduct = viewModel.beingEdited,
                                         onProductCreate = viewModel::createProduct,
+                                        onProductEdit = viewModel::confirmUpdate,
                                         modifier = Modifier.align(Alignment.Center),
                                     )
                                 }
@@ -47,8 +49,8 @@ class CRUDActivity : ComponentActivity() {
                                 TabItem.Read -> {
                                     TabContentRead(
                                         items = viewModel.products.value,
-                                        onEditClick = viewModel::onEditProduct,
-                                        onDeleteClick = viewModel::onDeleteProduct,
+                                        onEditClick = viewModel::onEditRequest,
+                                        onDeleteClick = viewModel::onDeleteRequest,
                                         modifier = Modifier.align(Alignment.Center)
                                     )
                                 }

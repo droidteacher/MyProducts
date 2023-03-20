@@ -9,13 +9,17 @@ interface CRUDViewModel {
     val products: MutableState<List<Product>>
     val shouldDisplayConfirmDialog: MutableState<Boolean>
 
+    val beingEdited: Product?
+
     fun onSelectTab(selected: TabItem)
-    fun onEditProduct(product: Product)
-    fun onDeleteProduct(product: Product)
+    fun onEditRequest(product: Product)
+    fun onDeleteRequest(product: Product)
 
     fun createProduct(name: String, desc: String, quantity: Int)
     fun fetchAll()
     fun confirmDelete()
     fun cancelDelete()
+    fun confirmUpdate(name: String, desc: String, quantity: Int)
+    fun cancelUpdate()
 
 }

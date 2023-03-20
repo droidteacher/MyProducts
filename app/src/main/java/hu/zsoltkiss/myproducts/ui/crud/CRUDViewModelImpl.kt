@@ -20,17 +20,24 @@ class CRUDViewModelImpl(private val dao: ProductDao): ViewModel(), CRUDViewModel
     override val shouldDisplayConfirmDialog: MutableState<Boolean> = mutableStateOf(false)
 
     private var productToRemove: Product? = null
+    private var productToEdit: Product? = null
+
+    override val beingEdited: Product?
+        get() = productToEdit
+
 
     override fun onSelectTab(selected: TabItem) {
         selectedTab.value = selected
         debugPrint("::onSelectTab, $selected", step = 7777)
     }
 
-    override fun onEditProduct(product: Product) {
-        debugPrint("::onEditProduct, $product", step = 7777)
+    override fun onEditRequest(product: Product) {
+        debugPrint("::onEditRequest, $product", step = 7777)
+        productToEdit = product
+        selectedTab.value = TabItem.Create
     }
 
-    override fun onDeleteProduct(product: Product) {
+    override fun onDeleteRequest(product: Product) {
         debugPrint("::onDeleteProduct, $product", step = 7777)
         productToRemove = product
         shouldDisplayConfirmDialog.value = true
@@ -62,6 +69,41 @@ class CRUDViewModelImpl(private val dao: ProductDao): ViewModel(), CRUDViewModel
     override fun cancelDelete() {
         productToRemove = null
         shouldDisplayConfirmDialog.value = false
+    }
+
+    override fun confirmUpdate(name: String, desc: String, quantity: Int) {
+        debugPrint("::confirmUpdate", step = 7777)
+
+        Completable.create { emitter ->
+            productToEdit?.let {
+                it.name = name
+                it.description = desc
+                it.quantity = quantity
+
+                dao.updateProduct(it)
+                val items = dao.fetchAll()
+                debugPrint("::confirmUpdate, REFRESHED, items count: ${items.size}", step = 7777)
+                products.value = items
+            }
+
+            emitter.onComplete()
+        }
+            .subscribeOn(Schedulers.io())
+            .subscribe(
+                {
+                    productToEdit = null
+                    selectedTab.value = TabItem.Read
+                },
+                {
+                    it.printStackTrace()
+                }
+            )
+            .addTo(disposeBag)
+    }
+
+    override fun cancelUpdate() {
+        productToEdit = null
+        selectedTab.value = TabItem.Read
     }
 
     override fun createProduct(name: String, desc: String, quantity: Int) {

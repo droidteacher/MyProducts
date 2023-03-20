@@ -23,10 +23,13 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import hu.zsoltkiss.myproducts.persistence.entity.Product
 
 @Composable
 fun TabContentCreate(
+    existingProduct: Product?,
     onProductCreate: (String, String, Int) -> Unit,
+    onProductEdit: (String, String, Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -34,13 +37,38 @@ fun TabContentCreate(
             .padding(horizontal = 10.dp),
         verticalArrangement = Arrangement.SpaceAround,
     ) {
-        val nameState = remember { mutableStateOf(TextFieldValue()) }
-        val descriptionState = remember { mutableStateOf(TextFieldValue()) }
-        val quantityState = remember { mutableStateOf(TextFieldValue()) }
+
+        val initialNameValue = existingProduct?.let {
+            TextFieldValue(it.name)
+        } ?: TextFieldValue()
+
+        val initialDescriptionValue = existingProduct?.let {
+            TextFieldValue(it.description)
+        } ?: TextFieldValue()
+
+        val initialQuantityValue = existingProduct?.let {
+            TextFieldValue(it.quantity.toString())
+        } ?: TextFieldValue()
+
+        val nameState = remember { mutableStateOf(initialNameValue) }
+        val descriptionState = remember { mutableStateOf(initialDescriptionValue) }
+        val quantityState = remember { mutableStateOf(initialQuantityValue) }
         val nameError = remember { mutableStateOf(false) }
         val descriptionError = remember { mutableStateOf(false) }
         val quantityError = remember { mutableStateOf(false) }
         val errorMessageState = remember { mutableStateOf(TextFieldValue()) }
+
+        val formTitle = existingProduct?.let {
+            "You are editing Product #${it.id}"
+        } ?: "Enter product details"
+
+        val formTitleColor = existingProduct?.let {
+            Color.Red
+        } ?: Color.Black
+
+        val buttonTitle = existingProduct?.let {
+            "Update Product"
+        } ?: "Create Product"
 
         Row(
             modifier = Modifier
@@ -49,9 +77,10 @@ fun TabContentCreate(
             horizontalArrangement = Arrangement.Center
         ) {
             Text(
-                text = "Enter product details",
+                text = formTitle,
                 style = TextStyle(
-                    fontSize = 24.sp
+                    fontSize = 24.sp,
+                    color = formTitleColor
                 )
             )
         }
@@ -77,7 +106,6 @@ fun TabContentCreate(
 
         Spacer(modifier = Modifier.height(5.dp))
 
-
         TextField(
             value = descriptionState.value,
             onValueChange = { descriptionState.value = it },
@@ -98,7 +126,6 @@ fun TabContentCreate(
         )
 
         Spacer(modifier = Modifier.height(5.dp))
-
 
         TextField(
             value = quantityState.value,
@@ -149,15 +176,28 @@ fun TabContentCreate(
                         errorMessageState.value = TextFieldValue("Mandatory field")
                     } else {
                         errorMessageState.value = TextFieldValue("")
-                        onProductCreate(
-                            nameState.value.text,
-                            descriptionState.value.text,
-                            quantityState.value.text.toInt()
-                        )
+
+                        if (existingProduct != null) {
+                            // UPDATING
+                            onProductEdit(
+                                nameState.value.text,
+                                descriptionState.value.text,
+                                quantityState.value.text.toInt()
+                            )
+                        } else {
+                            // CREATING NEW PRODUCT
+                            onProductCreate(
+                                nameState.value.text,
+                                descriptionState.value.text,
+                                quantityState.value.text.toInt()
+                            )
+                        }
+
+
                     }
                 }
             ) {
-                Text("Create Product")
+                Text(buttonTitle)
             }
         }
 
